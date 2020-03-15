@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+</head>
+<script type="text/javascript">
+</script>
+<body>
+	<table>
+		<tr th:each="list: ${list}">
+			<td th:text="${list.menuId }"></td>
+			<td th:text="${list.menuName }"></td>
+			<td th:text="${list.menuPrice }"></td>
+			<td th:text="${list.menuKind }"></td>
+			<td th:text="${list.menuKindName }"></td>
+			<td th:text="${list.menuState }"></td>
+			<td th:text="${list.menuStateName }"></td>
+			<td th:text="${list.menuPriority }"></td>
+			<td th:text="${list.menuLastUpdate }"></td>
+		</tr>
+	</table>
+</body>
+</html>

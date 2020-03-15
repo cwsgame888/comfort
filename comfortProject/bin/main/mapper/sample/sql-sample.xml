@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.comfort.sample.mapper.SampleMapper">
+	<!-- 메뉴 리스트 조회 -->
+	<select id="selectMenuList" parameterType="hashmap" resultType="hashmap">
+		SELECT *
+		FROM (
+			SELECT
+			RNUM 
+			, MENU_ID
+			, MENU_NAME
+			, MENU_PRICE
+			, MENU_KIND
+			, MENU_KIND_NAME
+			, MENU_STATE
+			, MENU_STATE_NAME
+			, MENU_PRIORITY
+			, MENU_LAST_UPDATE
+			FROM (
+				SELECT
+					ROWNUM AS RNUM
+					, MENU_ID
+					, MENU_NAME
+					, MENU_PRICE
+					, MENU_KIND
+					, (SELECT CODE_VALUE FROM POS_CODE WHERE CODE_GROUP = 'MENU_KIND' AND CODE_ID = MENU_KIND) AS MENU_KIND_NAME
+					, MENU_STATE
+					, DECODE(MENU_STATE, 'Y', '사용', '사용안함') AS MENU_STATE_NAME
+					, LPAD(MENU_PRIORITY, '3', '0') AS MENU_PRIORITY
+					, MENU_LAST_UPDATE
+				FROM
+					POS_MENU
+				WHERE 1=1
+				<if test="MENU_ID != null and MENU_ID != ''">
+					AND MENU_ID = #{MENU_ID}
+				</if>
+				<if test="MENU_NAME != null and MENU_NAME != ''">
+					AND MENU_NAME LIKE '%'||#{MENU_NAME}||'%'
+				</if>
+				<if test="MENU_KIND != null and MENU_KIND != ''">
+					AND MENU_KIND = #{MENU_KIND}
+				</if>
+				<if test="MENU_STATE != null and MENU_STATE != ''">
+					AND MENU_STATE = #{MENU_STATE}
+				</if>
+				<if test="MENU_PRICE != null and MENU_PRICE != ''">
+					AND MENU_PRICE = #{MENU_PRICE}
+				</if>
+				<if test="MENU_PRIORITY != null and MENU_PRIORITY != ''">
+					AND MENU_PRIORITY = #{MENU_PRIORITY}
+				</if>
+				<if test="sord != null and sord != '' and sidx != null and sidx != ''">
+					<if test="sidx == 'MENU_PRICE'">
+						ORDER BY TO_NUMBER(${sidx}) ${sord}
+					</if>
+					<if test="sidx != 'MENU_PRICE'">
+						ORDER BY ${sidx} ${sord}
+					</if>
+				</if>
+				)
+			WHERE ROWNUM <![CDATA[<=]]> (${rows} * ${page})
+			)
+		WHERE RNUM <![CDATA[>=]]> (${rows} * (${page} - 1)) + 1
+	</select>
+	<!-- 메뉴 리스트 조회 -->
+	<select id="selectMenuListDto" parameterType="hashmap" resultType="com.comfort.sample.dto.SampleDto">
+		SELECT *
+		FROM (
+			SELECT
+			RNUM 
+			, MENU_ID
+			, MENU_NAME
+			, MENU_PRICE
+			, MENU_KIND
+			, MENU_KIND_NAME
+			, MENU_STATE
+			, MENU_STATE_NAME
+			, MENU_PRIORITY
+			, MENU_LAST_UPDATE
+			FROM (
+				SELECT
+					ROWNUM AS RNUM
+					, MENU_ID
+					, MENU_NAME
+					, MENU_PRICE
+					, MENU_KIND
+					, (SELECT CODE_VALUE FROM POS_CODE WHERE CODE_GROUP = 'MENU_KIND' AND CODE_ID = MENU_KIND) AS MENU_KIND_NAME
+					, MENU_STATE
+					, DECODE(MENU_STATE, 'Y', '사용', '사용안함') AS MENU_STATE_NAME
+					, LPAD(MENU_PRIORITY, '3', '0') AS MENU_PRIORITY
+					, MENU_LAST_UPDATE
+				FROM
+					POS_MENU
+				WHERE 1=1
+				<if test="MENU_ID != null and MENU_ID != ''">
+					AND MENU_ID = #{MENU_ID}
+				</if>
+				<if test="MENU_NAME != null and MENU_NAME != ''">
+					AND MENU_NAME LIKE '%'||#{MENU_NAME}||'%'
+				</if>
+				<if test="MENU_KIND != null and MENU_KIND != ''">
+					AND MENU_KIND = #{MENU_KIND}
+				</if>
+				<if test="MENU_STATE != null and MENU_STATE != ''">
+					AND MENU_STATE = #{MENU_STATE}
+				</if>
+				<if test="MENU_PRICE != null and MENU_PRICE != ''">
+					AND MENU_PRICE = #{MENU_PRICE}
+				</if>
+				<if test="MENU_PRIORITY != null and MENU_PRIORITY != ''">
+					AND MENU_PRIORITY = #{MENU_PRIORITY}
+				</if>
+				<if test="sord != null and sord != '' and sidx != null and sidx != ''">
+					<if test="sidx == 'MENU_PRICE'">
+						ORDER BY TO_NUMBER(${sidx}) ${sord}
+					</if>
+					<if test="sidx != 'MENU_PRICE'">
+						ORDER BY ${sidx} ${sord}
+					</if>
+				</if>
+				)
+			)
+	</select>
+</mapper>
