@@ -13,7 +13,7 @@ public class DataMap<K, V> extends HashMap implements Serializable {
 	 */
 	private static final long serialVersionUID = 3556204360470848977L;
 
-	/**
+	/** 
 	 * 디폴트생성자 - initialCapacity : 500
 	 */
 	public DataMap() {
