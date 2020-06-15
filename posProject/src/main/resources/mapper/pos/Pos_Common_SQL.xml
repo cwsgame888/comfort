@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.mapper.PosCommonMapper">
+	<!-- 코드 리스트 조회 -->
+	<select id="selectCodeList" parameterType="hashmap" resultType="hashmap">
+		SELECT
+			CODE_GROUP
+			, CODE_ID
+			, CODE_VALUE
+			, CODE_PRIORITY
+			, ETC1
+			, ETC2
+			, ETC3
+		FROM
+			POS_CODE
+		WHERE
+			CODE_GROUP = #{CODE_GROUP}
+		<if test="sord != null and sord != '' and sidx != null and sidx != ''">
+			ORDER BY ${sidx} ${sord}
+		</if>
+	</select>
+	<!-- 코드 등록 -->
+	<insert id="insertCode" parameterType="hashmap">
+		INSERT INTO POS_CODE (
+				CODE_GROUP
+				, CODE_ID
+				, CODE_VALUE
+				, CODE_PRIORITY
+				<if test="ETC1 != null and ETC1 != ''">
+					, ETC1
+				</if>
+				<if test="ETC2 != null and ETC2 != ''">
+					, ETC2
+				</if>
+				<if test="ETC3 != null and ETC3 != ''">
+					, ETC3
+				</if>
+				, CODE_LAST_UPDATE
+				) 
+			VALUES (
+				#{CODE_GROUP}
+				, #{CODE_ID}
+				, #{CODE_VALUE}
+				, #{CODE_PRIORITY}
+				<if test="ETC1 != null and ETC1 != ''">
+					, #{ETC1}
+				</if>
+				<if test="ETC2 != null and ETC2 != ''">
+					, #{ETC2}
+				</if>
+				<if test="ETC3 != null and ETC3 != ''">
+					, #{ETC3}
+				</if>
+				, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			)
+	</insert>
+	<!-- 코드 수정 -->
+	<update id="updateCode">
+		UPDATE POS_CODE SET 
+			CODE_VALUE = #{CODE_VALUE}
+			, CODE_PRIORITY = #{CODE_PRIORITY}
+			, CODE_LAST_UPDATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			<if test="ETC1 != null and ETC1 != ''">
+				, ETC1 = #{ETC1}
+			</if>
+			<if test="ETC2 != null and ETC2 != ''">
+				, ETC2 = #{ETC2}
+			</if>
+			<if test="ETC3 != null and ETC3 != ''">
+				, ETC3 = #{ETC3}
+			</if>
+		WHERE CODE_GROUP = #{CODE_GROUP} AND CODE_ID = #{CODE_ID}
+	</update>
+	<!-- 코드 삭제 -->
+	<delete id="deleteCode">
+		DELETE FROM POS_CODE WHERE CODE_GROUP = #{CODE_GROUP} AND CODE_ID = #{CODE_ID}
+	</delete>
+	
+	<!-- 백업데이터 조회 -->
+	<select id="selectBackupData" parameterType="hashmap" resultType="hashmap">
+		SELECT * FROM ${BACKUP_TABLE}
+	</select>
+</mapper>

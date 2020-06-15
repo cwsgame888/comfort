@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.mapper.PosMenuMapper">
+	<!-- 메뉴 종류에 따른 메뉴 갯수 조회 -->
+	<select id="selectMenuCount" parameterType="hashmap" resultType="Integer">
+		SELECT
+			COUNT(MENU_ID)
+		FROM
+			POS_MENU
+		WHERE 1=1
+		<if test="MENU_ID != null and MENU_ID != ''">
+			AND MENU_ID = #{MENU_ID}
+		</if>
+		<if test="MENU_NAME != null and MENU_NAME != ''">
+			AND MENU_NAME LIKE '%'||#{MENU_NAME}||'%'
+		</if>
+		<if test="MENU_KIND != null and MENU_KIND != ''">
+			AND MENU_KIND = #{MENU_KIND}
+		</if>
+		<if test="MENU_STATE != null and MENU_STATE != ''">
+			AND MENU_STATE = #{MENU_STATE}
+		</if>
+		<if test="MENU_PRICE != null and MENU_PRICE != ''">
+			AND MENU_PRICE = #{MENU_PRICE}
+		</if>
+		<if test="MENU_PRIORITY != null and MENU_PRIORITY != ''">
+			AND MENU_PRIORITY = #{MENU_PRIORITY}
+		</if>
+	</select>
+	<!-- 메뉴 리스트 조회 -->
+	<select id="selectMenuList" parameterType="hashmap" resultType="hashmap">
+		SELECT *
+		FROM (
+			SELECT
+			RNUM 
+			, MENU_ID
+			, MENU_NAME
+			, MENU_PRICE
+			, MENU_KIND
+			, MENU_KIND_NAME
+			, MENU_STATE
+			, MENU_STATE_NAME
+			, MENU_PRIORITY
+			, MENU_LAST_UPDATE
+			FROM (
+				SELECT
+					ROWNUM AS RNUM
+					, MENU_ID
+					, MENU_NAME
+					, MENU_PRICE
+					, MENU_KIND
+					, (SELECT CODE_VALUE FROM POS_CODE WHERE CODE_GROUP = 'MENU_KIND' AND CODE_ID = MENU_KIND) AS MENU_KIND_NAME
+					, MENU_STATE
+					, DECODE(MENU_STATE, 'Y', '사용', '사용안함') AS MENU_STATE_NAME
+					, LPAD(MENU_PRIORITY, '3', '0') AS MENU_PRIORITY
+					, MENU_LAST_UPDATE
+				FROM
+					POS_MENU
+				WHERE 1=1
+				<if test="MENU_ID != null and MENU_ID != ''">
+					AND MENU_ID = #{MENU_ID}
+				</if>
+				<if test="MENU_NAME != null and MENU_NAME != ''">
+					AND MENU_NAME LIKE '%'||#{MENU_NAME}||'%'
+				</if>
+				<if test="MENU_KIND != null and MENU_KIND != ''">
+					AND MENU_KIND = #{MENU_KIND}
+				</if>
+				<if test="MENU_STATE != null and MENU_STATE != ''">
+					AND MENU_STATE = #{MENU_STATE}
+				</if>
+				<if test="MENU_PRICE != null and MENU_PRICE != ''">
+					AND MENU_PRICE = #{MENU_PRICE}
+				</if>
+				<if test="MENU_PRIORITY != null and MENU_PRIORITY != ''">
+					AND MENU_PRIORITY = #{MENU_PRIORITY}
+				</if>
+				<if test="sord != null and sord != '' and sidx != null and sidx != ''">
+					<if test="sidx == 'MENU_PRICE'">
+						ORDER BY TO_NUMBER(${sidx}) ${sord}
+					</if>
+					<if test="sidx != 'MENU_PRICE'">
+						ORDER BY ${sidx} ${sord}
+					</if>
+				</if>
+				)
+			WHERE ROWNUM <![CDATA[<=]]> (${rows} * ${page})
+			)
+		WHERE RNUM <![CDATA[>=]]> (${rows} * (${page} - 1)) + 1
+	</select>
+	<!-- 사용하는 메뉴 리스트 조회 
+	<select id="selectUseMenuList" resultType="com.company.first.pos.vo.MenuInfo">
+		SELECT
+			MENU_ID
+			, MENU_NAME
+			, MENU_PRICE
+			, MENU_KIND
+			, (SELECT CODE_VALUE FROM POS_CODE WHERE CODE_GROUP = 'MENU_KIND' AND CODE_ID = MENU_KIND) AS MENU_KIND_NAME
+			, MENU_STATE
+			, MENU_PRIORITY
+			, MENU_LAST_UPDATE
+		FROM
+			POS_MENU
+		WHERE 1=1 AND MENU_STATE = 'Y'
+		ORDER BY TO_NUMBER(MENU_PRIORITY) ASC
+	</select>
+	-->
+	<!-- 단건 메뉴 조회 -->
+	<select id="selectMenu" parameterType="hashmap" resultType="hashmap">
+		SELECT
+			MENU_ID
+			, MENU_NAME
+			, MENU_PRICE
+			, MENU_KIND
+			, MENU_STATE
+			, MENU_PRIORITY
+			, MENU_LAST_UPDATE
+		FROM
+			POS_MENU
+		WHERE 1=1 AND MENU_ID = #{MENU_ID}
+	</select>
+	
+	<!-- 메뉴 등록 -->
+	<insert id="insertMenu" parameterType="hashmap">
+		INSERT INTO POS_MENU (
+				MENU_ID
+				, MENU_NAME
+				, MENU_PRICE
+				, MENU_KIND
+				, MENU_STATE
+				, MENU_PRIORITY
+				, MENU_LAST_UPDATE
+			) VALUES (
+				#{MENU_ID}
+				, #{MENU_NAME}
+				, #{MENU_PRICE}
+				, #{MENU_KIND}
+				, #{MENU_STATE}
+				, #{MENU_PRIORITY}
+				, TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+			)
+	</insert>
+	<!-- 메뉴 수정 -->
+	<update id="updateMenu">
+		UPDATE POS_MENU SET 
+			MENU_NAME = #{MENU_NAME}
+			, MENU_PRICE = #{MENU_PRICE}
+			, MENU_KIND = #{MENU_KIND}
+			, MENU_STATE = #{MENU_STATE}
+			, MENU_PRIORITY = #{MENU_PRIORITY}
+			, MENU_LAST_UPDATE = TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS')
+		WHERE MENU_ID = #{MENU_ID}
+	</update>
+	<!-- 메뉴 우선순위 재설정 - 우선순위가 기존보다 작을때 거나 다른 메뉴종류에서 넘어왔을경우-->
+	<update id="updatePlusPriorityMenu">
+		UPDATE POS_MENU
+		SET MENU_PRIORITY = MENU_PRIORITY + 1
+		WHERE MENU_KIND = #{MENU_KIND}
+		AND MENU_PRIORITY >= ${MENU_PRIORITY}
+	</update>
+	<!-- 메뉴 우선순위 재설정 - 우선순귀가 기존보다 클때 -->
+	<update id="updateMinusPriorityMenu">
+		UPDATE POS_MENU
+		SET MENU_PRIORITY = MENU_PRIORITY - 1
+		WHERE MENU_KIND = #{MENU_KIND}
+		AND MENU_PRIORITY <![CDATA[<=]]> ${MENU_PRIORITY}
+		AND MENU_PRIORITY > (SELECT TO_NUMBER(MENU_PRIORITY) FROM POS_MENU WHERE MENU_ID = #{MENU_ID})
+	</update>
+	<!-- 메뉴 우선순위 재설정 - 메뉴가 삭제 되었을때 -->
+	<update id="deleteUpdatePriorityMenu">
+		UPDATE POS_MENU
+		SET MENU_PRIORITY = MENU_PRIORITY - 1
+		WHERE MENU_KIND = #{MENU_KIND}
+		AND MENU_PRIORITY > ${MENU_PRIORITY}
+	</update>
+	<!-- 메뉴 삭제 -->
+	<delete id="deleteMenu">
+		DELETE FROM POS_MENU WHERE MENU_ID = #{MENU_ID}
+	</delete>	
+</mapper>

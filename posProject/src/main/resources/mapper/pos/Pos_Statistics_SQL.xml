@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.mapper.PosStatsMapper">
+	<!-- 주문메뉴 중에서 메뉴 통계 데이터 가져오기 -->
+	<select id="selectStatsOrderMenu" parameterType="hashmap" resultType="hashmap">
+		SELECT 
+			A.MENU_ID
+			, A.ORDER_COUNT
+			, B.MENU_NAME
+			, B.MENU_PRICE 
+			, C.CODE_VALUE AS MENU_KIND_NAME
+		FROM (
+			SELECT MENU_ID, COUNT(MENU_ID) AS ORDER_COUNT
+			FROM POS_ORDER_MENU
+			WHERE 
+			1=1
+			<choose>
+				<when test="target == 'MONTH'">
+					<!-- 월별 -->
+					AND SUBSTR(ORDER_NUM, 0, 6) = REGEXP_REPLACE(#{STATS_DATE},'[^0-9]')
+				</when>
+				<when test="target == 'YEAR'">
+					<!-- 년별 -->
+					AND SUBSTR(ORDER_NUM, 0, 4) = REGEXP_REPLACE(#{STATS_DATE},'[^0-9]')
+				</when>
+				<otherwise>
+					<!-- 월별 -->
+					AND SUBSTR(ORDER_NUM, 0, 6) = TO_CHAR(SYSDATE, 'YYYYMM')
+				</otherwise>
+			</choose>
+			GROUP BY MENU_ID
+			) A
+		JOIN POS_MENU B ON A.MENU_ID = B.MENU_ID
+		JOIN POS_CODE C ON B.MENU_KIND = C.CODE_ID AND C.CODE_GROUP = 'MENU_KIND'
+		WHERE 1=1
+		<if test="MENU_KIND != null and MENU_KIND != '' and MENU_KIND != 'ALL'">
+			AND B.MENU_KIND = #{MENU_KIND}
+		</if>
+		ORDER BY A.ORDER_COUNT DESC
+	</select>
+
+	<!-- 사용하는 전체메뉴 중에서 주문 메뉴 통계 데이터 가져오기 -->
+	<select id="selectStatsAllOrderMenu" parameterType="hashmap" resultType="hashmap">
+		SELECT 
+			MENU_ID
+			, (SELECT COUNT(MENU_ID) 
+				FROM POS_ORDER_MENU 
+				WHERE 
+				MENU_ID = A.MENU_ID
+				<choose>
+					<when test="target == 'MONTH'">
+						<!-- 월별 -->
+						AND SUBSTR(ORDER_NUM, 0, 6) = REGEXP_REPLACE(#{STATS_DATE},'[^0-9]')
+					</when>
+					<when test="target == 'YEAR'">
+						<!-- 년별 -->
+						AND SUBSTR(ORDER_NUM, 0, 4) = REGEXP_REPLACE(#{STATS_DATE},'[^0-9]')
+					</when>
+					<otherwise>
+						<!-- 월별 -->
+						AND SUBSTR(ORDER_NUM, 0, 6) = TO_CHAR(SYSDATE, 'YYYYMM')
+					</otherwise>
+				</choose>
+				) AS ORDER_COUNT
+			, MENU_PRICE
+			, MENU_NAME
+		FROM POS_MENU A
+		WHERE MENU_STATE = 'Y'
+		<if test="MENU_KIND != null and MENU_KIND != '' and MENU_KIND != 'ALL'">
+			AND A.MENU_KIND = #{MENU_KIND}
+		</if>
+		ORDER BY ORDER_COUNT DESC
+	</select>
+</mapper>

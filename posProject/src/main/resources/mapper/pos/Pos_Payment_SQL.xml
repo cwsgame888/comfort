@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.pos.mapper.PosPaymentMapper">
+	<!-- 결제 이력 일자 데이터 호출 -->
+	<select id="selectPaymentDate" parameterType="hashmap" resultType="hashmap">
+		SELECT
+			DISTINCT TO_CHAR(TO_DATE(SUBSTR(ORDER_NUM,0,8), 'YYYYMMDD'), 'YYYY-MM-DD') AS PAYMENT_DATE
+		FROM
+			POS_PAYMENT
+		WHERE 1=1
+		<if test="PAYMENT_DATE != null and PAYMENT_DATE != ''">
+			AND SUBSTR(ORDER_NUM,0,6) = REGEXP_REPLACE(#{PAYMENT_DATE},'[^0-9]')
+		</if>
+		<if test="PAYMENT_DATE == null or PAYMENT_DATE == ''">
+			AND SUBSTR(ORDER_NUM,0,6) = TO_CHAR(SYSDATE,'YYYYMM')
+		</if>
+		ORDER BY PAYMENT_DATE DESC
+	</select>
+	<!-- 결제 이력 일자 데이터 갯수 상세 호출 -->
+	<select id="selectPaymentCount" parameterType="hashmap" resultType="Integer">
+		SELECT 
+			COUNT(ORDER_NUM)
+		FROM POS_PAYMENT
+		WHERE 
+		<choose>
+			<when test="PAYMENT_DATE != null and PAYMENT_DATE != ''">
+				SUBSTR(ORDER_NUM,0,8) = REGEXP_REPLACE(#{PAYMENT_DATE},'[^0-9]')
+			</when>
+			<otherwise>
+				SUBSTR(ORDER_NUM,0,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+			</otherwise>
+		</choose>
+		<if test="ORDER_NUM != null and ORDER_NUM != ''">
+			AND ORDER_NUM LIKE '%'||#{ORDER_NUM}||'%'
+		</if>
+		<if test="PAYMENT_KIND != null and PAYMENT_KIND != ''">
+			AND PAYMENT_KIND = #{PAYMENT_KIND}
+		</if>
+		<if test="PAYMENT_AMOUNT != null and PAYMENT_AMOUNT != ''">
+			AND PAYMENT_AMOUNT = #{PAYMENT_AMOUNT}
+		</if>
+		<if test="DISCOUNT_VALUE != null and DISCOUNT_VALUE != ''">
+			AND DISCOUNT_VALUE = #{DISCOUNT_VALUE}
+		</if>
+		<if test="ORDER_AMOUNT != null and ORDER_AMOUNT != ''">
+			AND ORDER_AMOUNT = #{ORDER_AMOUNT}
+		</if>
+		<if test="DELETE_YN != null and DELETE_YN != ''">
+			AND DELETE_YN = #{DELETE_YN}
+		</if>
+	</select>
+	<!-- 결제 이력 일자 데이터 상세 호출 -->
+	<select id="selectPaymentDateDetial" parameterType="hashmap" resultType="hashmap">
+		SELECT *
+		FROM (
+			SELECT
+				RNUM 
+				, ORDER_NUM
+				, PAYMENT_KIND
+				, PAYMENT_AMOUNT
+				, DISCOUNT_KIND
+				, DISCOUNT_VALUE
+				, ORDER_AMOUNT
+				, DELETE_YN
+				, DELETE_YN_NM
+				, PAYMENT_LAST_UPDATE
+			FROM (
+				SELECT 
+					ROWNUM AS RNUM
+					, ORDER_NUM
+					, PAYMENT_KIND
+					, PAYMENT_AMOUNT
+					, DISCOUNT_KIND
+					, CASE DISCOUNT_KIND
+						WHEN 'PERCENT' THEN DISCOUNT_VALUE || '%'
+						WHEN 'WON' THEN REGEXP_REPLACE(REVERSE(REGEXP_REPLACE( REVERSE(TO_CHAR(DISCOUNT_VALUE)), '([0-9]{3})','\1,')), '^,','')
+						ELSE DISCOUNT_VALUE
+						END AS DISCOUNT_VALUE
+					, ORDER_AMOUNT
+					, DELETE_YN
+					, CASE DELETE_YN
+						WHEN 'Y' THEN '취소'
+						ELSE ''
+						END AS DELETE_YN_NM
+					, TO_CHAR(TO_DATE(PAYMENT_LAST_UPDATE, 'YYYYMMDDHH24MISS'), 'HH24:MI:SS') AS PAYMENT_LAST_UPDATE
+				FROM POS_PAYMENT
+				WHERE 
+				<choose>
+					<when test="PAYMENT_DATE != null and PAYMENT_DATE != ''">
+						SUBSTR(ORDER_NUM,0,8) = REGEXP_REPLACE(#{PAYMENT_DATE},'[^0-9]')
+					</when>
+					<otherwise>
+						SUBSTR(ORDER_NUM,0,8) = TO_CHAR(SYSDATE,'YYYYMMDD')
+					</otherwise>
+				</choose>
+				<if test="ORDER_NUM != null and ORDER_NUM != ''">
+					AND ORDER_NUM LIKE '%'||#{ORDER_NUM}||'%'
+				</if>
+				<if test="PAYMENT_KIND != null and PAYMENT_KIND != ''">
+					AND PAYMENT_KIND = #{PAYMENT_KIND}
+				</if>
+				<if test="PAYMENT_AMOUNT != null and PAYMENT_AMOUNT != ''">
+					AND PAYMENT_AMOUNT = #{PAYMENT_AMOUNT}
+				</if>
+				<if test="DISCOUNT_VALUE != null and DISCOUNT_VALUE != ''">
+					AND DISCOUNT_VALUE = #{DISCOUNT_VALUE}
+				</if>
+				<if test="ORDER_AMOUNT != null and ORDER_AMOUNT != ''">
+					AND ORDER_AMOUNT = #{ORDER_AMOUNT}
+				</if>
+				<if test="DELETE_YN != null and DELETE_YN != ''">
+					AND DELETE_YN = #{DELETE_YN}
+				</if>
+				<choose>
+					<when test="sidx != 'PAYMENT_KIND' and sidx != 'DELETE_YN_NM'">
+						ORDER BY TO_NUMBER(${sidx}) ${sord}
+					</when>
+					<otherwise>
+						ORDER BY ${sidx} ${sord}
+					</otherwise>
+				</choose>
+				)
+			WHERE ROWNUM <![CDATA[<=]]> (${rows} * ${page})
+			)
+		WHERE RNUM <![CDATA[>=]]> (${rows} * (${page} - 1)) + 1
+	</select>
+	
+	<!-- 년 -->
+	<select id="selectSalesCalendar" parameterType="hashmap" resultType="hashmap">
+		SELECT PAYMENT_DAY, PAYMENT_KIND, SUM(PAYMENT_AMOUNT) AS PAYMENT_AMOUNT
+		FROM(
+			<choose>
+				<when test="target == 'DAY'">
+					<!-- 일별 -->
+					SELECT SUBSTR(SUBSTR(ORDER_NUM,0,8), 7, 8) AS PAYMENT_DAY, PAYMENT_KIND, PAYMENT_AMOUNT FROM POS_PAYMENT WHERE SUBSTR(ORDER_NUM,0,6) = REGEXP_REPLACE(#{PAYMENT_DAY},'[^0-9]')
+				</when>
+				<when test="target == 'MONTH'">
+					<!-- 월별 -->
+					SELECT SUBSTR(SUBSTR(ORDER_NUM,0,6), 5, 6) AS PAYMENT_DAY, PAYMENT_KIND, PAYMENT_AMOUNT FROM POS_PAYMENT WHERE SUBSTR(ORDER_NUM,0,4) = REGEXP_REPLACE(#{PAYMENT_DAY},'[^0-9]')
+				</when>
+				<when test="target == 'YEAR'">
+					<!-- 년별 -->
+					SELECT SUBSTR(ORDER_NUM,0,4) AS PAYMENT_DAY, PAYMENT_KIND, PAYMENT_AMOUNT FROM POS_PAYMENT
+				</when>
+				<otherwise>
+					<!-- 일별 -->
+					SELECT SUBSTR(SUBSTR(ORDER_NUM,0,8), 7, 8) AS PAYMENT_DAY, PAYMENT_KIND, PAYMENT_AMOUNT FROM POS_PAYMENT WHERE SUBSTR(ORDER_NUM,0,6) = TO_CHAR(SYSDATE,'YYYYMM')
+				</otherwise>
+			</choose>
+			)
+		GROUP BY PAYMENT_DAY, PAYMENT_KIND
+		ORDER BY PAYMENT_DAY ASC
+	</select>
+</mapper>
