@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.core.common.map.DMap;
 import com.core.common.map.DataMap;
 import com.pos.service.PosCommonService;
 import com.pos.service.PosOrderService;
@@ -32,7 +33,7 @@ public class PosOrderController {
 	
 	// 메뉴 종류, 메뉴, 이전 주문정보 가져옴
 	@RequestMapping(value = "/pos/posTableOrder")
-	public ModelAndView posTableOrder(DataMap dataMap) throws Exception{
+	public ModelAndView posTableOrder(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/posTableOrder");
 		// 코드 그룹 셋팅
 		dataMap.put("sord", "ASC");
@@ -55,7 +56,7 @@ public class PosOrderController {
 	// 이전 주문 메뉴 정보 가저옴
 	@ResponseBody
 	@RequestMapping(value = "/pos/posTableOrderMenu")
-	public DataMap posTableOrderMenu(DataMap dataMap) throws Exception{
+	public DataMap posTableOrderMenu(@DMap DataMap dataMap) throws Exception{
 		List<DataMap> orderMenuInfo = posOrderService.getOrderMenuInfo(dataMap);
 		dataMap.put("gridData", orderMenuInfo);
 		return dataMap;
@@ -64,7 +65,7 @@ public class PosOrderController {
 	// 주문메뉴 넣기
 	@ResponseBody
 	@RequestMapping(value = "/pos/posOrder")
-	public DataMap posOrder(DataMap dataMap) throws Exception{
+	public DataMap posOrder(@DMap DataMap dataMap) throws Exception{
 		ArrayList<DataMap> orderMenuList = (ArrayList<DataMap>) dataMap.get("ArrayData");
 		posOrderService.insertOrderMenu(orderMenuList);
         return dataMap;
@@ -72,21 +73,21 @@ public class PosOrderController {
 	// 주문메뉴 서비스
 	@ResponseBody
 	@RequestMapping(value = "/pos/posServiceOrderMenu")
-	public DataMap posServiceOrderMenu(DataMap dataMap) throws Exception{
+	public DataMap posServiceOrderMenu(@DMap DataMap dataMap) throws Exception{
 		posOrderService.updateServiceOrderMenu(dataMap);
 		return dataMap;
 	}
 	// 주문메뉴 취소
 	@ResponseBody
 	@RequestMapping(value = "/pos/posDeleteOrderMenu")
-	public DataMap posDeleteOrderMenu(DataMap dataMap) throws Exception{
+	public DataMap posDeleteOrderMenu(@DMap DataMap dataMap) throws Exception{
 		posOrderService.deleteOrderMenu(dataMap);
 		return dataMap;
 	}
 
 	// 주문메뉴 전광판 조회
 	@RequestMapping(value = "/pos/displayOrderList")
-	public ModelAndView displayOrderList(DataMap dataMap) throws Exception{
+	public ModelAndView displayOrderList(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/orderList");
 		List<DataMap> orderMenuList = posOrderService.getOrderList();
 		mv.addObject("orderMenuList", orderMenuList);
@@ -96,21 +97,21 @@ public class PosOrderController {
 	// 결제하기
 	@ResponseBody
 	@RequestMapping(value = "/pos/paymentOrder")
-	public DataMap paymentOrder(DataMap dataMap) throws Exception{
+	public DataMap paymentOrder(@DMap DataMap dataMap) throws Exception{
 		posOrderService.insertPayment(dataMap);
 		return dataMap;
 	}
 	// 주문 취소 하기
 	@ResponseBody
 	@RequestMapping(value = "/pos/cancelOrder")
-	public DataMap cancelOrder(DataMap dataMap) throws Exception{
+	public DataMap cancelOrder(@DMap DataMap dataMap) throws Exception{
 		posOrderService.updateCancelOrder(dataMap);
 		return dataMap;
 	}
 	// 주문들어간 메뉴 조리 완료처리
 	@ResponseBody
 	@RequestMapping(value = "/pos/completeOrder")
-	public DataMap completeOrder(DataMap dataMap) throws Exception{
+	public DataMap completeOrder(@DMap DataMap dataMap) throws Exception{
 		posOrderService.updateCompleteOrder(dataMap);
 		return dataMap;
 	}

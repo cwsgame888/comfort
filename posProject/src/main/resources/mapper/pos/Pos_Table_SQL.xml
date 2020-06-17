@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.pos.mapper.PosTableMapper">
-	<select id="selectTableList" parameterType="com.core.common.map.DataMap" resultType="com.core.common.map.DataMap">
+	<select id="selectTableList" parameterType="dataMap" resultType="dataMap">
 		SELECT
 			TABLE_ROW
 			, TABLE_COL
@@ -17,7 +17,7 @@
 		</if>
 	</select>
 	
-	<insert id="insertTable" parameterType="com.core.common.map.DataMap">
+	<insert id="insertTable" parameterType="dataMap">
 		INSERT INTO POS_TABLE (
 				TABLE_ROW
 				, TABLE_COL
@@ -34,7 +34,7 @@
 			)
 	</insert>
 	
-	<update id="updateTable" parameterType="com.core.common.map.DataMap">
+	<update id="updateTable" parameterType="dataMap">
 		UPDATE POS_TABLE SET 
 			TABLE_NAME = #{tableName}
 			, TABLE_STATE = #{tableState}
@@ -42,12 +42,12 @@
 		WHERE TABLE_ROW = #{row} AND TABLE_COL = #{col}
 	</update>
 	
-	<delete id="deleteTable" parameterType="com.core.common.map.DataMap">
+	<delete id="deleteTable" parameterType="dataMap">
 		DELETE FROM POS_TABLE WHERE TABLE_ROW = #{row} AND TABLE_COL = #{col}
 	</delete>
 	
 	<!-- 현재 테이블 주문 중 정보 -->
-	<select id="selectOrderList" parameterType="com.core.common.map.DataMap" resultType="com.core.common.map.DataMap">
+	<select id="selectOrderList" parameterType="dataMap" resultType="dataMap">
 		SELECT TABLE_ROW
 			, TABLE_COL
 			, ORDER_NUM
@@ -61,7 +61,7 @@
 	</select>
 
 	<!-- 당일 전체 정보 -->
-	<select id="selectAllOrderInfo" parameterType="com.core.common.map.DataMap" resultType="com.core.common.map.DataMap">
+	<select id="selectAllOrderInfo" parameterType="dataMap" resultType="dataMap">
 		SELECT BEFORE_PAYMENT_AMOUNT
 			, PAYMENT_AMOUNT
 			, TOTAL_HEAD_COUNT
@@ -99,7 +99,7 @@
 	</select>
 
 	<!-- 테이블 이동 -->
-	<update id="updateMoveOrderTable" parameterType="com.core.common.map.DataMap">
+	<update id="updateMoveOrderTable" parameterType="dataMap">
 		UPDATE POS_ORDER SET
 			TABLE_ROW = #{TABLE_ROW}
 			, TABLE_COL = #{TABLE_COL}
@@ -107,14 +107,14 @@
 	</update>
 	
 	<!-- 테이블 합치기 -->
-	<update id="updateSumOrderTable" parameterType="com.core.common.map.DataMap">
+	<update id="updateSumOrderTable" parameterType="dataMap">
 		UPDATE POS_ORDER_MENU SET
 			ORDER_NUM = #{MOVE_TO_ORDER_NUM}
 		WHERE ORDER_NUM = #{MOVE_FROM_ORDER_NUM}
 	</update>
 	
 	<!-- 테이블 합친 후 합쳐진 테이블은 삭제 -->
-	<delete id="deleteSumOrderTable" parameterType="com.core.common.map.DataMap">
+	<delete id="deleteSumOrderTable" parameterType="dataMap">
 		DELETE FROM POS_ORDER
 		WHERE ORDER_NUM = #{MOVE_FROM_ORDER_NUM}
 	</delete>

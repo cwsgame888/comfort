@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.core.common.map.DMap;
 import com.core.common.map.DataMap;
 import com.pos.service.PosCommonService;
 import com.pos.service.PosStatsServiceImple;
@@ -32,7 +33,7 @@ public class PosStatsController {
 	
 	// 결제 이력 일자 데이터 호출
 	@RequestMapping(value = "/pos/posStatsOrderMenu")
-	public ModelAndView posStatsOrderMenu(DataMap dataMap) throws Exception{
+	public ModelAndView posStatsOrderMenu(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/admin/posStatsList");
 		
 		String target = dataMap.getString("target", "MONTH");

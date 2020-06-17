@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.core.common.map.DMap;
 import com.core.common.map.DataMap;
 import com.pos.service.PosTableService;
 
@@ -25,7 +26,7 @@ public class PosTableController {
 	String excelHomeDir = "C:/Users/우리집/Desktop/table.xlsx";
 
 	@RequestMapping(value = "/pos/posTableList")
-	public ModelAndView posTableList(DataMap dataMap) throws Exception{
+	public ModelAndView posTableList(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = null;
 		String gubun = dataMap.getString("gubun");
 		if(log.isDebugEnabled()){
@@ -71,7 +72,7 @@ public class PosTableController {
 	
 	// 주문테이블 이동
 	@RequestMapping(value = "/pos/posMoveOrderTable")
-	public ModelAndView posMoveOrder(DataMap dataMap) throws Exception{
+	public ModelAndView posMoveOrder(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("redirect:/pos/posTableList.do");
 		posTableService.updateMoveOrderTable(dataMap);
 		return mv;
@@ -79,7 +80,7 @@ public class PosTableController {
 	
 	@ResponseBody
 	@RequestMapping(value = "/pos/posTableChange")
-	public DataMap posTableSave(DataMap dataMap) throws Exception{
+	public DataMap posTableSave(@DMap DataMap dataMap) throws Exception{
 		String target = dataMap.getString("target");
 		
 		if("insert".equals(target)){		// 저장
@@ -94,7 +95,7 @@ public class PosTableController {
 	}
 	
 	@RequestMapping(value = "/pos/posTime")
-	public ModelAndView posTime(DataMap dataMap) throws Exception{
+	public ModelAndView posTime(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/posTime");
 
         return mv;

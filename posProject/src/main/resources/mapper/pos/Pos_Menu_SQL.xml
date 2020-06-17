@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pos.mapper.PosMenuMapper">
 	<!-- 메뉴 종류에 따른 메뉴 갯수 조회 -->
-	<select id="selectMenuCount" parameterType="hashmap" resultType="Integer">
+	<select id="selectMenuCount" parameterType="DataMap" resultType="Integer">
 		SELECT
 			COUNT(MENU_ID)
 		FROM
@@ -29,7 +29,7 @@
 		</if>
 	</select>
 	<!-- 메뉴 리스트 조회 -->
-	<select id="selectMenuList" parameterType="hashmap" resultType="hashmap">
+	<select id="selectMenuList" parameterType="DataMap" resultType="DataMap">
 		SELECT *
 		FROM (
 			SELECT
@@ -107,7 +107,7 @@
 	</select>
 	-->
 	<!-- 단건 메뉴 조회 -->
-	<select id="selectMenu" parameterType="hashmap" resultType="hashmap">
+	<select id="selectMenu" parameterType="DataMap" resultType="DataMap">
 		SELECT
 			MENU_ID
 			, MENU_NAME
@@ -122,7 +122,7 @@
 	</select>
 	
 	<!-- 메뉴 등록 -->
-	<insert id="insertMenu" parameterType="hashmap">
+	<insert id="insertMenu" parameterType="DataMap">
 		INSERT INTO POS_MENU (
 				MENU_ID
 				, MENU_NAME

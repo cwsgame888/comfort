@@ -38,9 +38,9 @@ import org.springframework.stereotype.Component;
 public class LoggerAspect {
 	Logger log = LoggerFactory.getLogger(this.getClass());
 	
-	@Around("execution(* com.comfort.sample..controller.*Controller.*(..))"
-			+ " or execution(* com.comfort.sample..service.*Impl.*(..))"
-			+ " or execution(* com.comfort.sample..mapper.*Mapper.*(..))")
+	@Around("execution(* com.pos..controller.*Controller.*(..))"
+			+ " or execution(* com.pos..service.*Impl.*(..))"
+			+ " or execution(* com.pos..mapper.*Mapper.*(..))")
 	public Object logPrint(ProceedingJoinPoint joinPoint) throws Throwable {
 		String type = "";
 		String name = joinPoint.getSignature().getDeclaringTypeName();

@@ -41,6 +41,7 @@ public class DatabaseConfig {
 		SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
 		sqlSessionFactoryBean.setDataSource(dataSource);
 		sqlSessionFactoryBean.setMapperLocations(applicationContext.getResources("classpath:/mapper/**/*_SQL.xml"));
+		sqlSessionFactoryBean.setTypeAliasesPackage("com.core.common.map");
 		sqlSessionFactoryBean.setConfiguration(mybaitsConfig());
 		return sqlSessionFactoryBean.getObject();
 	}

@@ -28,11 +28,6 @@ public class PosAdminController {
 	@Autowired
 	private PosOrderService posOrderService;
 	
-	@RequestMapping("/")
-	public String openMenuList() throws Exception {
-		return "hello";
-	}
-	
 	@RequestMapping(value = "/pos/posAdmin")
 	public ModelAndView posTableList(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/admin/posAdminTemplate");

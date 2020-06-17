@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.core.common.map.DMap;
 import com.core.common.map.DataMap;
 import com.pos.service.PosPaymentService;
 
@@ -30,7 +31,7 @@ public class PosPaymentController {
 	
 	// 결제 이력 화면 호출
 	@RequestMapping(value = "/pos/posPaymentListIndex")
-	public ModelAndView posPaymentListIndex(DataMap dataMap) throws Exception{
+	public ModelAndView posPaymentListIndex(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/admin/posPaymentList");
         return mv;
 	}
@@ -38,7 +39,7 @@ public class PosPaymentController {
 	// 결제 이력 일자 데이터 호출
 	@ResponseBody
 	@RequestMapping(value = "/pos/posPaymentDate")
-	public DataMap posPaymentDate(DataMap dataMap) throws Exception{
+	public DataMap posPaymentDate(@DMap DataMap dataMap) throws Exception{
 		List<DataMap> paymentDate = posPaymentService.selectPaymentDate(dataMap);
 		dataMap.put("rows", paymentDate);
         return dataMap;
@@ -47,7 +48,7 @@ public class PosPaymentController {
 	// 결제 이력 일자 데이터 상세 호출
 	@ResponseBody
 	@RequestMapping(value = "/pos/posPaymentDateDetail")
-	public DataMap posPaymentDateDetail(DataMap dataMap) throws Exception{
+	public DataMap posPaymentDateDetail(@DMap DataMap dataMap) throws Exception{
 		List<DataMap> paymentDateDetail = posPaymentService.selectPaymentDateDetail(dataMap);
 		dataMap.put("rows", paymentDateDetail);
 		return dataMap;
@@ -55,7 +56,7 @@ public class PosPaymentController {
 	
 	// 달력별 결제 데이터 호출
 	@RequestMapping(value = "/pos/posSalesCalendar")
-	public ModelAndView posSalesCalendar(DataMap dataMap) throws Exception{
+	public ModelAndView posSalesCalendar(@DMap DataMap dataMap) throws Exception{
 		ModelAndView mv = new ModelAndView("/pos/admin/posSalesCalendar");
 		// 아무것도 셋팅 되어 있지 않으면 조회조건 구분값과 오늘 날짜를 셋팅해준다.
 		String target = StringUtils.defaultString(dataMap.getString("target"), "DAY");

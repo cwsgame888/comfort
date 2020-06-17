@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pos.mapper.PosPaymentMapper">
 	<!-- 결제 이력 일자 데이터 호출 -->
-	<select id="selectPaymentDate" parameterType="hashmap" resultType="hashmap">
+	<select id="selectPaymentDate" parameterType="DataMap" resultType="DataMap">
 		SELECT
 			DISTINCT TO_CHAR(TO_DATE(SUBSTR(ORDER_NUM,0,8), 'YYYYMMDD'), 'YYYY-MM-DD') AS PAYMENT_DATE
 		FROM
@@ -18,7 +18,7 @@
 		ORDER BY PAYMENT_DATE DESC
 	</select>
 	<!-- 결제 이력 일자 데이터 갯수 상세 호출 -->
-	<select id="selectPaymentCount" parameterType="hashmap" resultType="Integer">
+	<select id="selectPaymentCount" parameterType="DataMap" resultType="Integer">
 		SELECT 
 			COUNT(ORDER_NUM)
 		FROM POS_PAYMENT
@@ -51,7 +51,7 @@
 		</if>
 	</select>
 	<!-- 결제 이력 일자 데이터 상세 호출 -->
-	<select id="selectPaymentDateDetial" parameterType="hashmap" resultType="hashmap">
+	<select id="selectPaymentDateDetial" parameterType="DataMap" resultType="DataMap">
 		SELECT *
 		FROM (
 			SELECT
@@ -127,7 +127,7 @@
 	</select>
 	
 	<!-- 년 -->
-	<select id="selectSalesCalendar" parameterType="hashmap" resultType="hashmap">
+	<select id="selectSalesCalendar" parameterType="DataMap" resultType="DataMap">
 		SELECT PAYMENT_DAY, PAYMENT_KIND, SUM(PAYMENT_AMOUNT) AS PAYMENT_AMOUNT
 		FROM(
 			<choose>

@@ -3,7 +3,7 @@
 
 <mapper namespace="com.pos.mapper.PosStatsMapper">
 	<!-- 주문메뉴 중에서 메뉴 통계 데이터 가져오기 -->
-	<select id="selectStatsOrderMenu" parameterType="hashmap" resultType="hashmap">
+	<select id="selectStatsOrderMenu" parameterType="DataMap" resultType="DataMap">
 		SELECT 
 			A.MENU_ID
 			, A.ORDER_COUNT
@@ -41,7 +41,7 @@
 	</select>
 
 	<!-- 사용하는 전체메뉴 중에서 주문 메뉴 통계 데이터 가져오기 -->
-	<select id="selectStatsAllOrderMenu" parameterType="hashmap" resultType="hashmap">
+	<select id="selectStatsAllOrderMenu" parameterType="DataMap" resultType="DataMap">
 		SELECT 
 			MENU_ID
 			, (SELECT COUNT(MENU_ID) 
